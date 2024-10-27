@@ -21,4 +21,4 @@ jobs:
         message: "Auto Commit"
         author_email: "zeeshan54khan@gmail.com"
         author_name: "Zeeshan"
-        branch: "master"
+        branch: "main"
