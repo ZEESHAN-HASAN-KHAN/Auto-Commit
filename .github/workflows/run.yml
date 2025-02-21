@@ -3,22 +3,29 @@ name: "Run"
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * *"  # Runs at midnight UTC daily
 
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-      with:
-        persist-credentials: false
-        fetch-depth: 0 
-    - name: Commit & Push changes
-      uses: actions-js/push@master
-      with:
-        github_token: ${{ secrets.GH_TOKEN }}
-        empty: true
-        message: "Auto Commit"
-        author_email: "zeeshan54khan@gmail.com"
-        author_name: "Zeeshan"
-        branch: "main"
+      - name: Generate random runs count
+        id: random
+        run: echo "COUNT=$(( RANDOM % 5 + 1 ))" >> $GITHUB_ENV  # Random number between 1-5
+
+      - name: Loop Execution
+        run: |
+          for i in $(seq 1 $COUNT); do
+            echo "Run #$i of $COUNT"
+            sleep $(( RANDOM % 600 ))  # Random sleep between 0-10 minutes
+          done
+
+      - name: Commit & Push changes
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          empty: true
+          message: "Auto Commit"
+          author_email: "zeeshan54khan@gmail.com"
+          author_name: "Zeeshan"
+          branch: "main"
