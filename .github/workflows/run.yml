@@ -40,4 +40,4 @@ jobs:
           git commit -m "Auto Commit" || echo "No changes to commit"
           git push origin ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
