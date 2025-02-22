@@ -9,23 +9,35 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Generate random runs count
         id: random
-        run: echo "COUNT=$(( RANDOM % 5 + 1 ))" >> $GITHUB_ENV  # Random number between 1-5
+        run: |
+          COUNT=$(( RANDOM % 5 + 1 ))
+          echo "COUNT=$COUNT" >> $GITHUB_ENV
+          echo "Generated COUNT: $COUNT"
+
+      - name: Debug COUNT
+        run: echo "COUNT is $COUNT"
 
       - name: Loop Execution
         run: |
           for i in $(seq 1 $COUNT); do
             echo "Run #$i of $COUNT"
-            sleep $(( RANDOM % 600 ))  # Random sleep between 0-10 minutes
+            sleep $(( RANDOM % 60 ))  # Random sleep between 0-60 seconds
           done
 
+      - name: Configure Git
+        run: |
+          git config --global user.email "zeeshan54khan@gmail.com"
+          git config --global user.name "Zeeshan"
+
       - name: Commit & Push changes
-        uses: actions-js/push@master
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          empty: true
-          message: "Auto Commit"
-          author_email: "zeeshan54khan@gmail.com"
-          author_name: "Zeeshan"
-          branch: "main"
+        run: |
+          git add .
+          git commit -m "Auto Commit" || echo "No changes to commit"
+          git push origin ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
