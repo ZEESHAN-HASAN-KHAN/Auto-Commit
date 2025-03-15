@@ -1,7 +1,6 @@
 name: "Run"
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # Runs at midnight UTC daily
 
