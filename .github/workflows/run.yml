@@ -1,8 +1,7 @@
-name: "Run"
+name: "Auto Commit Workflow - Testable"
 
 on:
-  schedule:
-    - cron: "0 0 * * *"  # Runs at midnight UTC daily
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
 
 jobs:
   run:
@@ -11,32 +10,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate random runs count
+      - name: Generate random runs count (1 or 2)
         id: random
         run: |
-          COUNT=$(( RANDOM % 5 + 1 ))
+          COUNT=$(( RANDOM % 2 + 1 ))
           echo "COUNT=$COUNT" >> $GITHUB_ENV
           echo "Generated COUNT: $COUNT"
-
-      - name: Debug COUNT
-        run: echo "COUNT is $COUNT"
-
-      - name: Loop Execution
-        run: |
-          for i in $(seq 1 $COUNT); do
-            echo "Run #$i of $COUNT"
-            sleep $(( RANDOM % 60 ))  # Random sleep between 0-60 seconds
-          done
 
       - name: Configure Git
         run: |
           git config --global user.email "zeeshan54khan@gmail.com"
           git config --global user.name "Zeeshan"
 
-      - name: Commit & Push changes
+      - name: Make and commit changes
         run: |
-          git add .
-          git commit -m "Auto Commit" || echo "No changes to commit"
-          git push origin ${{ github.ref_name }}
+          for i in $(seq 1 $COUNT); do
+            echo "Run #$i of $COUNT"
+            echo "Commit #$i at $(date -u)" >> timestamp.txt
+            git add timestamp.txt
+            git commit -m "Auto Commit #$i on $(date -u)"
+            sleep $(( RANDOM % 5 ))  # Short sleep for demo
+          done
+          git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
