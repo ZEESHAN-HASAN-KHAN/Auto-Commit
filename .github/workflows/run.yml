@@ -1,10 +1,12 @@
 name: "Auto Commit Workflow - Testable"
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # You can still run it manually
+  schedule:
+    - cron: "0 0 * * *"  # Runs once a day at midnight UTC
 
 permissions:
-  contents: write  # ✅ Needed for push to work
+  contents: write
 
 jobs:
   run:
@@ -16,25 +18,25 @@ jobs:
         with:
           persist-credentials: true
 
-      - name: Generate random count (1–2)
+      - name: Generate random commit count (5–15)
         id: random
         run: |
-          COUNT=$(( RANDOM % 2 + 1 ))
+          COUNT=$(( RANDOM % 11 + 5 ))  # 5 to 15
           echo "COUNT=$COUNT" >> $GITHUB_ENV
-          echo "Generated COUNT: $COUNT"
+          echo "Will commit $COUNT times today."
 
       - name: Configure Git
         run: |
           git config --global user.email "zeeshan54khan@gmail.com"
           git config --global user.name "Zeeshan"
 
-      - name: Create/Update timestamp file
+      - name: Create/Update timestamp file and Commit
         run: |
           for i in $(seq 1 $COUNT); do
-            echo "Run $i at $(date -u)" >> timestamp.txt
+            echo "Commit #$i at $(date -u)" >> timestamp.txt
             git add timestamp.txt
-            git commit -m "Auto Commit $i at $(date -u)" || echo "Nothing to commit"
-            sleep 2
+            git commit -m "Auto Commit #$i at $(date -u)" || echo "No changes"
+            sleep $(( RANDOM % 10 + 1 ))  # 1–10 sec pause between commits
           done
 
       - name: Push changes
